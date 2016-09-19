@@ -30,6 +30,8 @@ class S3Downloader {
     this.configBucket = options.bucket;
     this.configKey = options.key;
     this.currentPath = options.currentPath || 'current';
+
+    this.s3 = options.s3 || s3;
   }
 
   download() {
@@ -55,7 +57,7 @@ class S3Downloader {
       Key: key
     };
 
-    return s3.getObject(params).promise()
+    return this.s3.getObject(params).promise()
       .then(data => {
         let config = JSON.parse(data.Body);
         this.ui.writeLine('got config', config);
@@ -88,7 +90,7 @@ class S3Downloader {
 
 	   let archivePath = this.archivePath;
 	   let file = fs.createWriteStream(archivePath);
-	   let request = s3.getObject(params);
+	   let request = this.s3.getObject(params);
 
 	   this.ui.writeLine("saving S3 object " + bucket + "/" + key + " to " + archivePath);
 

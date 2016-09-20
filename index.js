@@ -30,6 +30,7 @@ class S3Downloader {
     this.configBucket = options.bucket;
     this.configKey = options.key;
     this.currentPath = options.currentPath || 'current';
+    this.baseArchivePath = options.baseArchivePath;
 
     this.s3 = options.s3 || s3;
   }
@@ -52,6 +53,7 @@ class S3Downloader {
 
     this.ui.writeLine('fetching current app version from ' + bucket + '/' + key);
 
+    let baseArchivePath = this.baseArchivePath;
     let params = {
       Bucket: bucket,
       Key: key
@@ -64,7 +66,8 @@ class S3Downloader {
 
         this.appBucket = config.bucket;
         this.appKey = config.key;
-        this.archivePath = path.basename(config.key);
+
+        this.archivePath = path.join(baseArchivePath, path.basename(config.key));
       });
   }
 
@@ -128,7 +131,7 @@ class S3Downloader {
 
   renameAppPath() {
     let ext = parseExt(this.archivePath);
-    this.outputPath  = path.basename(this.archivePath, ext);
+    this.outputPath  = path.join(this.baseArchivePath, path.basename(this.archivePath, ext));
     return fsp.rename('deploy-dist', this.outputPath)
       .catch((error) => {
         this.ui.writeLine(error);
@@ -166,7 +169,7 @@ class S3Downloader {
 
 function outputPathFor(archivePath) {
   let ext = parseExt(archivePath);
-  let name = path.basename(archivePath, ext);
+  let name = path.join(this.baseArchivePath, path.basename(archivePath, ext));
 
   // Remove MD5 hash
   return name.split('-').slice(0, -1).join('-');

@@ -117,9 +117,10 @@ class S3Downloader {
     };
 
     let cmd = cmds[parseExt(archivePath)];
+    let basePath = path.basename(archivePath);
 
     this.ui.writeLine(`extracting archive...`);
-    return this.exec(`${cmd} ${archivePath}`)
+    return this.exec(`cd ${this.baseArchivePath} && ${cmd} ${basePath}`)
       .then(() => {
         this.ui.writeLine(`extracted ${archivePath}`);
       });
@@ -131,8 +132,10 @@ class S3Downloader {
 
   renameAppPath() {
     let ext = parseExt(this.archivePath);
-    this.outputPath  = path.join(this.baseArchivePath, path.basename(this.archivePath, ext));
-    return fsp.rename('deploy-dist', this.outputPath)
+    this.outputPath = path.join(this.baseArchivePath, path.basename(this.archivePath, ext));
+    let outputPath = outputPathFor(this.archivePath, this.baseArchivePath);
+
+    return fsp.rename(outputPath, this.outputPath)
       .catch((error) => {
         this.ui.writeLine(error);
       });
@@ -167,9 +170,9 @@ class S3Downloader {
   }
 }
 
-function outputPathFor(archivePath) {
+function outputPathFor(archivePath, baseArchivePath) {
   let ext = parseExt(archivePath);
-  let name = path.join(this.baseArchivePath, path.basename(archivePath, ext));
+  let name = path.join(baseArchivePath, path.basename(archivePath, ext));
 
   // Remove MD5 hash
   return name.split('-').slice(0, -1).join('-');

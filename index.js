@@ -43,8 +43,7 @@ class S3Downloader {
 
     return this.fetchCurrentVersion()
       .then(() => this.downloadAppArchive())
-      .then(() => this.symlink())
-      .then(() => this.currentPath);
+      .then(() => this.outputPath);
   }
 
   fetchCurrentVersion() {
